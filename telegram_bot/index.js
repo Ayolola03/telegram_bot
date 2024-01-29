@@ -1,8 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Set the port
+
+// Set up mongoose connection
+mongoose.set("strictQuery", false);
+const mongoDB = "mongodb+srv://Blue:gdsc1234@cluster0.yrqqhrt.mongodb.net/?retryWrites=true&w=majority";
+
+main().catch((err) => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+}
 
 // Middleware
 app.use(bodyParser.json());
@@ -46,13 +56,22 @@ bot.on('message', (msg) => {
     if (messageText === '/start') {
         bot.sendMessage(chatId, 'Welcome to the Telegram bot! You can use commands like /search to find lecturers.');
     } else if (messageText === '/help') {
-        bot.sendMessage(chatId, 'Help information: ...');
+        bot.sendMessage(chatId, 'Available commands:\n/lecturers - View all lecturers\n/search [query] - Search for lecturers\n/help - Display help information');
+    } else if (messageText.startsWith('/lecturers')) {
+        // Display all lecturers
+        const allLecturers = lecturers.map(lecturer => lecturer.name).join('\n');
+        bot.sendMessage(chatId, `List of all lecturers:\n${allLecturers}`);
     } else if (messageText.startsWith('/search')) {
-        // Parse search query and retrieve results
+        // Parse search query and retrieve matching lecturers
         const query = messageText.replace('/search', '').trim();
-        const results = searchLecturers(query); // Function to search for lecturers
-        // Send search results back to the user
-        bot.sendMessage(chatId, `Search results: ${results}`);
+        const matchingLecturers = filterLecturers(query);
+        // Display matching lecturers
+        if (matchingLecturers.length > 0) {
+            const matchingNames = matchingLecturers.map(lecturer => lecturer.name).join('\n');
+            bot.sendMessage(chatId, `Matching lecturers for "${query}":\n${matchingNames}`);
+        } else {
+            bot.sendMessage(chatId, `No matching lecturers found for "${query}".`);
+        }
     } else {
         // Handle unrecognized commands or messages
         bot.sendMessage(chatId, 'Sorry, I didn\'t understand that command. Type /help for assistance.');
@@ -63,22 +82,59 @@ bot.on('message', (msg) => {
 // End of work area--------------------------------------
 
 
-// Middleware for simple authentication
-function authenticateMiddleware(msg, next) {
-    const messageText = msg.text;
-    const isAuthenticated = messageText.includes('/authenticate');
+// Middleware for user authentication
+function authenticateUserMiddleware(msg, next) {
+    // Extract user ID from incoming message
+    const userId = msg.from.id;
 
-    if (isAuthenticated) {
-        // User is authenticated, continue processing the message
+    // Check if the user is authorized (e.g., by comparing against a whitelist of authorized user IDs)
+    const isAuthorized = authorizedUserIds.includes(userId);
+
+    if (isAuthorized) {
+        // User is authorized, continue processing the message
         next();
     } else {
-        // User is not authenticated, send a message indicating authentication is required
+        // User is not authorized, send a message indicating authentication is required
         const chatId = msg.chat.id;
         bot.sendMessage(chatId, 'Authentication required.');
     }
 }
 
 // Apply the middleware to the message handler
-bot.on('message', authenticateMiddleware, (msg) => {
+bot.on('message', authenticateUserMiddleware, (msg) => {
     // Handle incoming messages
 });
+
+
+
+
+
+// In memory data for the lecturer's information
+// Define the in-memory data structure for lecturers
+const lecturers = [
+    { id: 1, name: 'Dr. John Doe', department: 'Computer Science', course: 'Introduction to Programming', office: 'Building A, Room 101' },
+    { id: 2, name: 'Prof. Jane Smith', department: 'Electrical Engineering', course: 'Digital Signal Processing', office: 'Building B, Room 201' },
+    // Add more lecturer objects as needed
+];
+
+// Function to filter lecturers based on search query
+function filterLecturers(query) {
+    // Convert query to lowercase for case-insensitive search
+    const queryLowercase = query.toLowerCase();
+    // Filter lecturers based on query criteria
+    const filteredLecturers = lecturers.filter((lecturer) => {
+        return (
+            lecturer.name.toLowerCase().includes(queryLowercase) ||
+            lecturer.department.toLowerCase().includes(queryLowercase) ||
+            lecturer.course.toLowerCase().includes(queryLowercase) ||
+            lecturer.office.toLowerCase().includes(queryLowercase)
+        );
+    });
+    return filteredLecturers;
+}
+
+
+
+
+
+
