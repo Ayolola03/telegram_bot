@@ -1,4 +1,4 @@
-# Telegram Bot for Covenant University Lecturer Office Locator
+# Telegram Bot for CU Lecturer Bot
 
 ## Introduction
 This Telegram bot assists Covenant University students in finding their lecturers' offices. It provides functionalities for searching by lecturer name, department, course, or building. Additionally, admins can update lecturer information stored in a MongoDB database through the bot.
