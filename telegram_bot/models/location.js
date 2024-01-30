@@ -8,8 +8,5 @@ const LocationSchema = new Schema({
   
 });
 
-
-
-
 // Export model
 module.exports = mongoose.model("Location", LocationSchema);

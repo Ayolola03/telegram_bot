@@ -8,8 +8,5 @@ const CourseSchema = new Schema({
   
 });
 
-
-
-
 // Export model
 module.exports = mongoose.model("Course", CourseSchema);

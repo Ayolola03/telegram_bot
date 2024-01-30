@@ -9,7 +9,7 @@ const LecturerSchema = new Schema({
   educational_status: { type: String },
 });
 
-// Virtual for author's full name
+
 LecturerSchema.virtual("name").get(function () {
   // To avoid errors in cases where an author does not have either a family name or first name
   // We want to make sure we handle the exception by returning an empty string for that case
@@ -20,8 +20,6 @@ LecturerSchema.virtual("name").get(function () {
 
   return fullname;
 });
-
-
 
 // Export model
 module.exports = mongoose.model("Lecturer", LecturerSchema);

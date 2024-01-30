@@ -56,9 +56,9 @@ bot.on('message', (msg) => {
 
     // Check for specific commands
     if (messageText === '/start') {
-        bot.sendMessage(chatId, 'Welcome to the Telegram bot! You can use commands like /search to find lecturers.');
+        bot.sendMessage(chatId, 'Welcome to the Telegram bot! You can use commands like /help to get more info on the bot.');
     } else if (messageText === '/help') {
-        bot.sendMessage(chatId, 'Available commands:\n/lecturers - View all lecturers\n/search [query] - Search for lecturers\n/help - Display help information');
+        bot.sendMessage(chatId, 'Available commands:\n/help - Display help information \n/lecturers - View all lecturers \n/login - Gets the user logged in to use the bot \n/search [query] - Search for lecturers \n/start - Initializes the bot');
     } else if (messageText.startsWith('/lecturers')) {
         // Display all lecturers
         const allLecturers = lecturers.map(lecturer => lecturer.name).join('\n');
